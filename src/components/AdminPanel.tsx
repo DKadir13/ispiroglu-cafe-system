@@ -22,7 +22,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   tableCount,
   updateTableCount,
   endDay,
-  orders,
   lastEndOfDay
 }) => {
   const [showForm, setShowForm] = useState(false);

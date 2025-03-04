@@ -46,8 +46,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <h2 className="text-2xl font-bold text-amber-800">Giriş Yap</h2>
           <p className="text-gray-600 mt-1">
             {from === '/admin' 
-              ? 'Yönetim Paneline erişmek için kimlik bilgilerinizi girin' 
-              : 'Masalara erişmek için kimlik bilgilerinizi girin'}
+              ? 'Yönetim Paneline erişmek için  bilgilerinizi girin' 
+              : 'Masalara erişmek için  bilgilerinizi girin'}
           </p>
         </div>
         
@@ -121,8 +121,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </div>
           
           <div className="text-center text-sm text-gray-500">
-            <p>Demo kimlik bilgileri:</p>
-            <p>Kullanıcı Adı: abc / Şifre: 1234</p>
+            <p>Rol Seçin ve Kullanıcı Bilgilerini girin.</p>
+           
           </div>
         </form>
       </div>
