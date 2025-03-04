@@ -1,4 +1,4 @@
-import  { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import AdminPanel from './components/AdminPanel';
 import CafeMenu from './components/CafeMenu';
@@ -38,22 +38,13 @@ function App() {
     }
   }, [isAuthenticated, location.pathname, navigate]);
 
-  // Fetch products from API (simulated)
+  // Fetch products from API
   useEffect(() => {
-    // This would be replaced with actual API call
     const fetchProducts = async () => {
       try {
-        // Simulated API response
-        const response = await new Promise<Product[]>((resolve) => {
-          setTimeout(() => {
-            resolve([
-              { id: 1, name: 'Espresso', price: 15, category: 'Coffee', description: 'Güçlü kahve' },
-              { id: 2, name: 'Latte', price: 20, category: 'Coffee', description: 'Sütlü kahve' },
-              { id: 3, name: 'Cheesecake', price: 25, category: 'Dessert', description: 'Kremalı kek' },
-            ]);
-          }, 500);
-        });
-        setProducts(response);
+        const response = await fetch('https://api.example.com/products'); // Replace with your API URL
+        const data = await response.json();
+        setProducts(data);
       } catch (error) {
         console.error('Ürünler alınırken hata oluştu:', error);
       }
@@ -84,20 +75,12 @@ function App() {
   const addProduct = async (product: Omit<Product, 'id'>) => {
     // This would be an API call in a real application
     try {
-      // Simulated API response
-      const newProduct = {
-        ...product,
-        id: products.length ? Math.max(...products.map(p => p.id)) + 1 : 1
-      };
-      
-      // In a real app, you would send a POST request to your API
-      // const response = await fetch('https://api.example.com/products', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(product)
-      // });
-      // const newProduct = await response.json();
-      
+      const response = await fetch('https://api.example.com/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(product)
+      });
+      const newProduct = await response.json();
       setProducts([...products, newProduct]);
       return newProduct;
     } catch (error) {
@@ -109,16 +92,14 @@ function App() {
   const updateProduct = async (product: Product) => {
     // This would be an API call in a real application
     try {
-      // In a real app, you would send a PUT request to your API
-      // const response = await fetch(`https://api.example.com/products/${product.id}`, {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(product)
-      // });
-      // const updatedProduct = await response.json();
-      
-      setProducts(products.map(p => p.id === product.id ? product : p));
-      return product;
+      const response = await fetch(`https://api.example.com/products/${product.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(product)
+      });
+      const updatedProduct = await response.json();
+      setProducts(products.map(p => p.id === product.id ? updatedProduct : p));
+      return updatedProduct;
     } catch (error) {
       console.error('Ürün güncellenirken hata oluştu:', error);
       throw error;
@@ -128,11 +109,9 @@ function App() {
   const deleteProduct = async (id: number) => {
     // This would be an API call in a real application
     try {
-      // In a real app, you would send a DELETE request to your API
-      // await fetch(`https://api.example.com/products/${id}`, {
-      //   method: 'DELETE'
-      // });
-      
+      await fetch(`https://api.example.com/products/${id}`, {
+        method: 'DELETE'
+      });
       setProducts(products.filter(p => p.id !== id));
     } catch (error) {
       console.error('Ürün silinirken hata oluştu:', error);
@@ -147,21 +126,16 @@ function App() {
   const endDay = async () => {
     // This would be an API call in a real application
     try {
-      // Get orders since last end of day
       const ordersToSend = orders.filter(order => 
         new Date(order.timestamp) > lastEndOfDay
       );
-      
-      // In a real app, you would send a POST request to your API
-      // const response = await fetch('https://api.example.com/end-of-day', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ orders: ordersToSend, timestamp: new Date() })
-      // });
-      
-      // Update last end of day timestamp
+      const response = await fetch('https://api.example.com/end-of-day', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orders: ordersToSend, timestamp: new Date() })
+      });
+      await response.json();
       setLastEndOfDay(new Date());
-      
       return ordersToSend;
     } catch (error) {
       console.error('Gün sonu raporu alınırken hata oluştu:', error);
@@ -200,7 +174,7 @@ function App() {
               </>
             )}
             {!isAuthenticated && (
-              <a href="/login" className="hover:underline">Giriş Yap</a>
+              <a href="/login" className="hover:underline"></a>
             )}
           </nav>
           <button
@@ -230,7 +204,7 @@ function App() {
               </>
             )}
             {!isAuthenticated && (
-              <a href="/login" className="hover:underline">Giriş Yap</a>
+              <a href="/login" className="hover:underline"></a>
             )}
           </nav>
         )}

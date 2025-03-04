@@ -34,7 +34,7 @@ const CafeMenu: React.FC<CafeMenuProps> = ({ products }) => {
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-6">Cafe Menu</h2>
+        <h2 className="text-2xl font-bold mb-6">Ürünlerimiz</h2>
         
         <div className="flex flex-wrap gap-2 mb-6">
           <button
@@ -45,7 +45,7 @@ const CafeMenu: React.FC<CafeMenuProps> = ({ products }) => {
                 : 'bg-gray-200 hover:bg-gray-300'
             }`}
           >
-            All
+            Hepsi
           </button>
           
           {categories.map(category => (
