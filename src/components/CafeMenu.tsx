@@ -1,13 +1,28 @@
-import React, { useState, useMemo } from 'react';
+import  { useState, useEffect, useMemo } from 'react';
 import { Product } from '../types';
 import { Coffee, CakeSlice, Utensils, Soup } from 'lucide-react';
 
 interface CafeMenuProps {
-  products: Product[];
+  apiUrl: string;
 }
 
-const CafeMenu: React.FC<CafeMenuProps> = ({ products }) => {
+function CafeMenu({ apiUrl }: CafeMenuProps) {
+  const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/products`);
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error('Ürünler alınırken hata oluştu:', error);
+      }
+    };
+
+    fetchProducts();
+  }, [apiUrl]);
 
   const categories = useMemo(() => {
     return Array.from(new Set(products.map(product => product.category)));
@@ -89,6 +104,6 @@ const CafeMenu: React.FC<CafeMenuProps> = ({ products }) => {
       </div>
     </div>
   );
-};
+}
 
 export default CafeMenu;

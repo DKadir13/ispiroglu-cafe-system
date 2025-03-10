@@ -174,7 +174,7 @@ function App() {
               </>
             )}
             {!isAuthenticated && (
-              <a href="/login" className="hover:underline"></a>
+              <a href="/login" className="hover:underline">Giriş Yap</a>
             )}
           </nav>
           <button
@@ -204,7 +204,7 @@ function App() {
               </>
             )}
             {!isAuthenticated && (
-              <a href="/login" className="hover:underline"></a>
+              <a href="/login" className="hover:underline">Giriş Yap</a>
             )}
           </nav>
         )}

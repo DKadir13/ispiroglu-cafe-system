@@ -1,43 +1,54 @@
 import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Lock, User } from 'lucide-react';
 
-interface LoginProps {
-  onLogin: (username: string, password: string, role: string) => boolean;
-}
-
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
+function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('tables'); // Default to tables access
+  const [role, setRole] = useState('tables'); // Default: Masalara Erişim
   const [error, setError] = useState('');
   
-  const location = useLocation();
   const navigate = useNavigate();
   
-  // Get the intended destination from location state, or default to '/'
-  const from = location.state?.from || '/';
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-  
+
     if (!username.trim() || !password.trim()) {
       setError('Kullanıcı adı ve şifre gereklidir');
       return;
     }
-  
-    const success = onLogin(username, password, role);
-  
-    if (!success) {
-      setError('Geçersiz kullanıcı adı veya şifre');
+
+    if (role === 'tables') {
+      // Statik kullanıcı kontrolü
+      if (username === 'abc' && password === '1234') {
+        navigate('/tables', { replace: true });
+      } else {
+        setError('Kullanıcı adı veya şifre hatalı');
+      }
       return;
     }
-  
-    // Giriş başarılıysa, yönlendir
-    navigate(from, { replace: true });
+
+    // Yönetim erişimi: API üzerinden doğrulama
+    try {
+      const response = await fetch("https://ispiroglucafe.com/auth/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ username: username.trim(), password: password.trim() }),
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+        localStorage.setItem('token', data.access_token);
+        navigate('/admin', { replace: true });
+      } else {
+        setError('Kullanıcı adı veya şifre hatalı');
+      }
+    } catch (error) {
+      console.error('Giriş sırasında hata oluştu:', error);
+      setError('Bir hata oluştu. Lütfen tekrar deneyin.');
+    }
   };
-  
 
   return (
     <div className="flex justify-center items-center min-h-[80vh]">
@@ -45,18 +56,18 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold text-amber-800">Giriş Yap</h2>
           <p className="text-gray-600 mt-1">
-            {from === '/admin' 
-              ? 'Yönetim Paneline erişmek için  bilgilerinizi girin' 
-              : 'Masalara erişmek için  bilgilerinizi girin'}
+            {role === 'admin' 
+              ? 'Yönetim Paneline erişmek için bilgilerinizi girin' 
+              : 'Masalara erişmek için bilgilerinizi girin'}
           </p>
         </div>
-        
+
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {error}
           </div>
         )}
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
@@ -119,15 +130,10 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               Giriş Yap
             </button>
           </div>
-          
-          <div className="text-center text-sm text-gray-500">
-            <p>Rol Seçin ve Kullanıcı Bilgilerini girin.</p>
-           
-          </div>
         </form>
       </div>
     </div>
   );
-};
+}
 
 export default Login;

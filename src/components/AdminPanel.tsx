@@ -14,7 +14,7 @@ interface AdminPanelProps {
   lastEndOfDay: Date;
 }
 
-const AdminPanel: React.FC<AdminPanelProps> = ({
+function AdminPanel({
   products,
   addProduct,
   updateProduct,
@@ -23,7 +23,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   updateTableCount,
   endDay,
   lastEndOfDay
-}) => {
+}: AdminPanelProps) {
   const [showForm, setShowForm] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({
@@ -327,6 +327,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       </div>
     </div>
   );
-};
+}
 
 export default AdminPanel;
