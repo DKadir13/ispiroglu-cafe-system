@@ -1,58 +1,81 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Product, Order } from '../types';
 import { Plus, Edit, Trash, ReceiptText } from 'lucide-react';
 
-interface AdminPanelProps {
-  products: Product[];
-  addProduct: (product: Omit<Product, 'id'>) => Promise<Product>;
-  updateProduct: (product: Product) => Promise<Product>;
-  deleteProduct: (id: number) => Promise<void>;
-  tableCount: number;
-  updateTableCount: (count: number) => void;
-  endDay: () => Promise<Order[]>;
-  orders: Order[];
-  lastEndOfDay: Date;
-}
-
-function AdminPanel({
-  products,
-  addProduct,
-  updateProduct,
-  deleteProduct,
-  tableCount,
-  updateTableCount,
-  endDay,
-  lastEndOfDay
-}: AdminPanelProps) {
+function AdminPanel() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [tableCount, setTableCount] = useState<number>(6);
+  const [lastEndOfDay, setLastEndOfDay] = useState<Date>(new Date());
   const [showForm, setShowForm] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     price: 0,
     category: '',
-    description: ''
+    description: '',
+    image: null as File | null
   });
   const [endOfDayOrders, setEndOfDayOrders] = useState<Order[]>([]);
   const [showEndOfDay, setShowEndOfDay] = useState(false);
+  const [fetchedEndOfDayOrders, setFetchedEndOfDayOrders] = useState<Order[]>([]);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('https://api.example.com/products');
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error('Ürünler alınırken hata oluştu:', error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: name === 'price' ? parseFloat(value) : value
-    });
+    if (e.target instanceof HTMLInputElement && e.target.type === 'file') {
+      const files = e.target.files;
+      setFormData({
+        ...formData,
+        [name]: files?.[0] || null
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: name === 'price' ? parseFloat(value) : value
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('price', formData.price.toString());
+      formDataToSend.append('category', formData.category);
+      formDataToSend.append('description', formData.description);
+      if (formData.image) {
+        formDataToSend.append('image', formData.image);
+      }
+
       if (currentProduct) {
-        await updateProduct({
-          ...formData,
-          id: currentProduct.id
-        } as Product);
+        const response = await fetch(`https://api.example.com/products/${currentProduct.id}`, {
+          method: 'PUT',
+          body: formDataToSend
+        });
+        const updatedProduct = await response.json();
+        setProducts(products.map(p => p.id === currentProduct.id ? updatedProduct : p));
       } else {
-        await addProduct(formData);
+        const response = await fetch('https://api.example.com/products', {
+          method: 'POST',
+          body: formDataToSend
+        });
+        const newProduct = await response.json();
+        setProducts([...products, newProduct]);
       }
       resetForm();
     } catch (error) {
@@ -66,7 +89,8 @@ function AdminPanel({
       name: product.name,
       price: product.price,
       category: product.category,
-      description: product.description
+      description: product.description,
+      image: null
     });
     setShowForm(true);
   };
@@ -74,7 +98,10 @@ function AdminPanel({
   const handleDelete = async (id: number) => {
     if (window.confirm('Bu ürünü silmek istediğinizden emin misiniz?')) {
       try {
-        await deleteProduct(id);
+        await fetch(`https://api.example.com/products/${id}`, {
+          method: 'DELETE'
+        });
+        setProducts(products.filter(p => p.id !== id));
       } catch (error) {
         console.error('Ürün silinirken hata oluştu:', error);
       }
@@ -87,18 +114,40 @@ function AdminPanel({
       name: '',
       price: 0,
       category: '',
-      description: ''
+      description: '',
+      image: null
     });
     setShowForm(false);
   };
 
   const handleEndDay = async () => {
     try {
-      const endOfDayData = await endDay();
-      setEndOfDayOrders(endOfDayData);
+      const response = await fetch('https://api.example.com/end-of-day', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ timestamp: new Date() })
+      });
+      const endOfDayData = await response.json();
+      setFetchedEndOfDayOrders(endOfDayData);
       setShowEndOfDay(true);
     } catch (error) {
       console.error('Gün sonu raporu alınırken hata oluştu:', error);
+    }
+  };
+
+  const confirmEndOfDay = async () => {
+    try {
+      const response = await fetch('https://api.example.com/confirm-end-of-day', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orders: fetchedEndOfDayOrders, timestamp: new Date() })
+      });
+      const endOfDayData = await response.json();
+      setEndOfDayOrders(endOfDayData);
+      setLastEndOfDay(new Date());
+      setShowEndOfDay(false);
+    } catch (error) {
+      console.error('Gün sonu raporu onaylanırken hata oluştu:', error);
     }
   };
 
@@ -118,14 +167,20 @@ function AdminPanel({
                 min="1"
                 max="50"
                 value={tableCount}
-                onChange={(e) => updateTableCount(parseInt(e.target.value))}
+                onChange={(e) => setTableCount(parseInt(e.target.value))}
                 className="border rounded px-2 py-1 w-20"
               />
+              <button
+                onClick={() => setTableCount(tableCount + 1)}
+                className="bg-blue-600 text-white px-4 py-2 rounded ml-4 hover:bg-blue-700"
+              >
+                Masa Ekle
+              </button>
             </div>
           </div>
           
           <button
-            onClick={handleEndDay}
+            onClick={() => setShowConfirmation(true)}
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center gap-2"
           >
             <ReceiptText size={18} />
@@ -146,19 +201,19 @@ function AdminPanel({
             </div>
             <p className="mb-2">Dönem: {lastEndOfDay.toLocaleString()} - {new Date().toLocaleString()}</p>
             
-            {endOfDayOrders.length === 0 ? (
+            {fetchedEndOfDayOrders.length === 0 ? (
               <p>Bu dönemde sipariş yok.</p>
             ) : (
               <div className="space-y-4">
-                <p className="font-medium">Toplam Sipariş: {endOfDayOrders.length}</p>
+                <p className="font-medium">Toplam Sipariş: {fetchedEndOfDayOrders.length}</p>
                 <p className="font-medium">
-                  Toplam Gelir: ₺{endOfDayOrders.reduce((sum, order) => sum + order.total, 0).toFixed(2)}
+                  Toplam Gelir: ₺{fetchedEndOfDayOrders.reduce((sum, order) => sum + order.total, 0).toFixed(2)}
                 </p>
                 
                 <div className="mt-4">
                   <h4 className="font-medium mb-2">Sipariş Detayları:</h4>
                   <div className="max-h-60 overflow-y-auto">
-                    {endOfDayOrders.map((order, index) => (
+                    {fetchedEndOfDayOrders.map((order, index) => (
                       <div key={index} className="p-3 border-b last:border-b-0">
                         <p className="font-medium">Masa {order.tableNumber} - {new Date(order.timestamp).toLocaleTimeString()}</p>
                         <ul className="ml-4 mt-1">
@@ -173,6 +228,12 @@ function AdminPanel({
                     ))}
                   </div>
                 </div>
+                <button
+                  onClick={confirmEndOfDay}
+                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                >
+                  Onayla ve Gönder
+                </button>
               </div>
             )}
           </div>
@@ -255,6 +316,18 @@ function AdminPanel({
                   rows={3}
                 />
               </div>
+
+              <div>
+                <label htmlFor="image" className="block mb-1">Resim</label>
+                <input
+                  type="file"
+                  id="image"
+                  name="image"
+                  accept="image/*"
+                  onChange={handleInputChange}
+                  className="w-full border rounded px-3 py-2"
+                />
+              </div>
               
               <div className="flex gap-2">
                 <button
@@ -325,6 +398,28 @@ function AdminPanel({
           </table>
         </div>
       </div>
+
+      {showConfirmation && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-bold mb-4">Gün sonu almak istediğinize emin misiniz?</h3>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowConfirmation(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                İptal
+              </button>
+              <button
+                onClick={confirmEndOfDay}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              >
+                Evet
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

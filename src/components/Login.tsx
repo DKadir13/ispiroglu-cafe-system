@@ -13,34 +13,25 @@ function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
+  
     if (!username.trim() || !password.trim()) {
       setError('Kullanıcı adı ve şifre gereklidir');
       return;
     }
-
-    if (role === 'tables') {
-      // Statik kullanıcı kontrolü
-      if (username === 'abc' && password === '1234') {
-        navigate('/tables', { replace: true });
-      } else {
-        setError('Kullanıcı adı veya şifre hatalı');
-      }
-      return;
-    }
-
-    // Yönetim erişimi: API üzerinden doğrulama
+  
     try {
       const response = await fetch("https://ispiroglucafe.com/auth/token", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ username: username.trim(), password: password.trim() }),
       });
-
+  
       if (response.status === 200) {
         const data = await response.json();
         localStorage.setItem('token', data.access_token);
-        navigate('/admin', { replace: true });
+  
+        // Seçilen role göre yönlendirme
+        navigate(role === 'admin' ? '/admin' : '/tables', { replace: true });
       } else {
         setError('Kullanıcı adı veya şifre hatalı');
       }
@@ -49,6 +40,7 @@ function Login() {
       setError('Bir hata oluştu. Lütfen tekrar deneyin.');
     }
   };
+  
 
   return (
     <div className="flex justify-center items-center min-h-[80vh]">

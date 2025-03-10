@@ -1,19 +1,15 @@
-import  { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Product } from '../types';
 import { Coffee, CakeSlice, Utensils, Soup } from 'lucide-react';
 
-interface CafeMenuProps {
-  apiUrl: string;
-}
-
-function CafeMenu({ apiUrl }: CafeMenuProps) {
+function CafeMenu() {
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(`${apiUrl}/products`);
+        const response = await fetch('https://api.example.com/products');
         const data = await response.json();
         setProducts(data);
       } catch (error) {
@@ -22,7 +18,7 @@ function CafeMenu({ apiUrl }: CafeMenuProps) {
     };
 
     fetchProducts();
-  }, [apiUrl]);
+  }, []);
 
   const categories = useMemo(() => {
     return Array.from(new Set(products.map(product => product.category)));

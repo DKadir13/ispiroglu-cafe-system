@@ -1,28 +1,37 @@
-import React, { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Product, OrderItem, Order } from '../types';
 import { ShoppingCart, Printer, Plus, Minus, Coffee } from 'lucide-react';
 
-interface TablesProps {
-  products: Product[];
-  tableCount: number;
-  addOrder: (order: Order) => void;
-}
-
-const Tables: React.FC<TablesProps> = ({ products, tableCount, addOrder }) => {
+function Tables() {
+  const [products, setProducts] = useState<Product[]>([]);
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
   const [cart, setCart] = useState<OrderItem[]>([]);
   const [orderComplete, setOrderComplete] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [tableCount, setTableCount] = useState<number>(6);
 
-  // Initialize categories when products change
-  React.useEffect(() => {
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('https://api.example.com/products');
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error('Ürünler alınırken hata oluştu:', error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
     const uniqueCategories = Array.from(new Set(products.map(p => p.category)));
     setCategories(uniqueCategories);
   }, [products]);
 
-  const filteredProducts = React.useMemo(() => {
+  const filteredProducts = useMemo(() => {
     if (!selectedCategory) return products;
     return products.filter(p => p.category === selectedCategory);
   }, [products, selectedCategory]);
@@ -69,7 +78,7 @@ const Tables: React.FC<TablesProps> = ({ products, tableCount, addOrder }) => {
     return cart.reduce((total, item) => total + (item.product.price * item.quantity), 0);
   };
 
-  const handleCompleteOrder = () => {
+  const handleCompleteOrder = async () => {
     if (selectedTable === null || cart.length === 0) return;
     
     const order: Order = {
@@ -80,16 +89,26 @@ const Tables: React.FC<TablesProps> = ({ products, tableCount, addOrder }) => {
       timestamp: new Date()
     };
     
-    addOrder(order);
-    setOrderComplete(true);
-    
-    // In a real application, you would send the order to a printer here
-    console.log('Sipariş yazdırılıyor:', order);
-    
-    // Clear the cart after a short delay
-    setTimeout(() => {
-      setCart([]);
-    }, 2000);
+    try {
+      const response = await fetch('https://api.example.com/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(order)
+      });
+
+      if (response.ok) {
+        setOrderComplete(true);
+        console.log('Sipariş yazdırılıyor:', order);
+        
+        setTimeout(() => {
+          setCart([]);
+        }, 2000);
+      } else {
+        console.error('Sipariş gönderilirken hata oluştu:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Sipariş gönderilirken hata oluştu:', error);
+    }
   };
 
   const handleConfirmOrder = () => {
@@ -273,6 +292,6 @@ const Tables: React.FC<TablesProps> = ({ products, tableCount, addOrder }) => {
       )}
     </div>
   );
-};
+}
 
 export default Tables;
