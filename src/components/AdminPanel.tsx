@@ -64,7 +64,7 @@ function AdminPanel() {
 
       if (currentProduct) {
         // Ürün güncelleme API isteği burada yapılacak
-        const response = await fetch(`https://ispiroglucafe.com/menu-items/`, {
+        const response = await fetch(`https://ispiroglucafe.com/menu-items`, {
           method: 'PUT',
           body: formDataToSend
         });
