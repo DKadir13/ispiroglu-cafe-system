@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import AdminPanel from './components/AdminPanel';
 import CafeMenu from './components/CafeMenu';
 import Tables from './components/Tables';
@@ -17,7 +17,7 @@ function App() {
   useEffect(() => {
     const fetchMenuItems = async () => {
       try {
-        const response = await fetch('https://api.example.com/menu'); // Replace with actual API URL
+        const response = await fetch('https://ispiroglucafe.com/menu-items');
         const data = await response.json();
         setMenuItems(data);
       } catch (error) {
@@ -46,7 +46,7 @@ function App() {
       
       <main className="container mx-auto p-4">
         <Routes>
-          <Route path="/" element={<CafeMenu />} />
+          <Route path="/" element={<CafeMenu  />} />
           <Route path="/login" element={<Login />} />
           <Route path="/tables" element={<Tables />} />
           <Route path="/admin" element={<AdminPanel />} />

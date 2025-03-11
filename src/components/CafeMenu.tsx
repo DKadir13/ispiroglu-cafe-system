@@ -9,7 +9,7 @@ function CafeMenu() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('https://api.example.com/products');
+        const response = await fetch('https://ispiroglucafe.com/menu-items');
         const data = await response.json();
         setProducts(data);
       } catch (error) {

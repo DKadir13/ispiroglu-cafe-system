@@ -11,11 +11,12 @@ function Tables() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [tableCount, setTableCount] = useState<number>(6);
+  const [tables, setTables] = useState<number[]>([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('https://api.example.com/products');
+        const response = await fetch('https://ispiroglucafe.com/menu-items');
         const data = await response.json();
         setProducts(data);
       } catch (error) {
@@ -31,6 +32,20 @@ function Tables() {
     setCategories(uniqueCategories);
   }, [products]);
 
+  useEffect(() => {
+    const fetchTables = async () => {
+      try {
+        const response = await fetch('https://ispiroglucafe.com/tables');
+        const data = await response.json();
+        setTables(data);
+      } catch (error) {
+        console.error('Masalar alınırken hata oluştu:', error);
+      }
+    };
+
+    fetchTables();
+  }, []);
+
   const filteredProducts = useMemo(() => {
     if (!selectedCategory) return products;
     return products.filter(p => p.category === selectedCategory);
@@ -40,6 +55,25 @@ function Tables() {
     setSelectedTable(tableNumber);
     setCart([]);
     setOrderComplete(false);
+  };
+
+  const handleAddTable = async () => {
+    try {
+      const response = await fetch('https://ispiroglucafe.com/tables', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tableNumber: tableCount + 1 })
+      });
+      if (response.ok) {
+        setTableCount(tableCount + 1);
+        const newTable = await response.json();
+        setTables([...tables, newTable]);
+      } else {
+        console.error('Masa eklenirken hata oluştu:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Masa eklenirken hata oluştu:', error);
+    }
   };
 
   const addToCart = (product: Product) => {
@@ -90,7 +124,7 @@ function Tables() {
     };
     
     try {
-      const response = await fetch('https://api.example.com/orders', {
+      const response = await fetch('https://ispiroglucafe.com/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(order)
@@ -130,7 +164,7 @@ function Tables() {
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-2xl font-bold mb-6">Bir Masa Seçin</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {Array.from({ length: tableCount }, (_, i) => i + 1).map(tableNumber => (
+            {tables.map(tableNumber => (
               <button
                 key={tableNumber}
                 onClick={() => handleSelectTable(tableNumber)}
@@ -141,6 +175,12 @@ function Tables() {
               </button>
             ))}
           </div>
+          <button
+            onClick={handleAddTable}
+            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Masa Ekle
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

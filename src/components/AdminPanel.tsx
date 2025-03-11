@@ -23,7 +23,7 @@ function AdminPanel() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('https://api.example.com/products');
+        const response = await fetch('https://ispiroglucafe.com/menu-items');
         const data = await response.json();
         setProducts(data);
       } catch (error) {
@@ -63,17 +63,27 @@ function AdminPanel() {
       }
 
       if (currentProduct) {
-        const response = await fetch(`https://api.example.com/products/${currentProduct.id}`, {
+        // Ürün güncelleme API isteği burada yapılacak
+        const response = await fetch(`https://ispiroglucafe.com/menu-items/`, {
           method: 'PUT',
           body: formDataToSend
         });
+        if (response.status === 401) {
+          console.error('Yetkisiz erişim: Ürün güncellenemedi.');
+          return;
+        }
         const updatedProduct = await response.json();
         setProducts(products.map(p => p.id === currentProduct.id ? updatedProduct : p));
       } else {
-        const response = await fetch('https://api.example.com/products', {
+        // Yeni ürün ekleme API isteği burada yapılacak
+        const response = await fetch('https://ispiroglucafe.com/menu-items', {
           method: 'POST',
           body: formDataToSend
         });
+        if (response.status === 401) {
+          console.error('Yetkisiz erişim: Ürün eklenemedi.');
+          return;
+        }
         const newProduct = await response.json();
         setProducts([...products, newProduct]);
       }
@@ -98,7 +108,7 @@ function AdminPanel() {
   const handleDelete = async (id: number) => {
     if (window.confirm('Bu ürünü silmek istediğinizden emin misiniz?')) {
       try {
-        await fetch(`https://api.example.com/products/${id}`, {
+        await fetch(`https://ispiroglucafe.com/menu-items/${id}`, {
           method: 'DELETE'
         });
         setProducts(products.filter(p => p.id !== id));
@@ -122,7 +132,7 @@ function AdminPanel() {
 
   const handleEndDay = async () => {
     try {
-      const response = await fetch('https://api.example.com/end-of-day', {
+      const response = await fetch('https://ispiroglucafe.com/end-of-day', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ timestamp: new Date() })
@@ -137,7 +147,7 @@ function AdminPanel() {
 
   const confirmEndOfDay = async () => {
     try {
-      const response = await fetch('https://api.example.com/confirm-end-of-day', {
+      const response = await fetch('https://ispiroglucafe.com/confirm-end-of-day', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orders: fetchedEndOfDayOrders, timestamp: new Date() })
