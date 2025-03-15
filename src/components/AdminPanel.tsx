@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Product, Order } from '../types';
 import { Plus, Edit, Trash, ReceiptText } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Table, Settings, List, LogOut } from 'lucide-react';
 
 function AdminPanel() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -163,6 +165,20 @@ function AdminPanel() {
 
   return (
     <div className="space-y-8">
+       <nav className="bg-gray-800 text-white p-4 grid justify-between items-center">
+        <div className="flex space-x-4">
+         
+          <Link to="/tables" className="flex items-center gap-1 hover:text-gray-400">
+            <Table size={18} /> Tablolar
+          </Link>
+          <Link to="/admin" className="flex items-center gap-1 hover:text-gray-400">
+            <Settings size={18} /> Yönetici Paneli
+          </Link>
+          <Link to="/menu" className="flex items-center gap-1 hover:text-gray-400">
+            <LogOut size={18} /> Çıkış yap
+          </Link>
+        </div>
+      </nav>
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-4">Yönetim Paneli</h2>
         

@@ -10,7 +10,6 @@ function Tables() {
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [tableCount, setTableCount] = useState<number>(6);
   const [tables, setTables] = useState<number[]>([]);
 
   useEffect(() => {
@@ -37,14 +36,18 @@ function Tables() {
       try {
         const response = await fetch('https://ispiroglucafe.com/tables');
         const data = await response.json();
-        setTables(data);
+        
+        // Eğer gelen veri dizi değilse, boş dizi olarak ayarla
+        setTables(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Masalar alınırken hata oluştu:', error);
+        setTables([]); // Hata durumunda da boş bir dizi kullan
       }
     };
-
+  
     fetchTables();
   }, []);
+  
 
   const filteredProducts = useMemo(() => {
     if (!selectedCategory) return products;
@@ -57,24 +60,7 @@ function Tables() {
     setOrderComplete(false);
   };
 
-  const handleAddTable = async () => {
-    try {
-      const response = await fetch('https://ispiroglucafe.com/tables', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tableNumber: tableCount + 1 })
-      });
-      if (response.ok) {
-        setTableCount(tableCount + 1);
-        const newTable = await response.json();
-        setTables([...tables, newTable]);
-      } else {
-        console.error('Masa eklenirken hata oluştu:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Masa eklenirken hata oluştu:', error);
-    }
-  };
+  
 
   const addToCart = (product: Product) => {
     setCart(prevCart => {
@@ -124,7 +110,7 @@ function Tables() {
     };
     
     try {
-      const response = await fetch('https://ispiroglucafe.com/orders', {
+      const response = await fetch('https://ispiroglucafe.com/tables/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(order)
@@ -175,12 +161,7 @@ function Tables() {
               </button>
             ))}
           </div>
-          <button
-            onClick={handleAddTable}
-            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Masa Ekle
-          </button>
+       
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
