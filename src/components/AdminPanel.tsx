@@ -3,7 +3,6 @@ import { Product, Order } from '../types';
 import { Plus, Edit, Trash, ReceiptText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Table, Settings, LogOut } from 'lucide-react';
-import axios from 'axios';
 
 function AdminPanel() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -28,15 +27,16 @@ function AdminPanel() {
 
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("Authorization", "bearer " + localStorage.getItem("token"));
-    
+    myHeaders.append("Authorization", "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc0MjE2ODM0OH0.mvyT6gsKzTpgf3CC5F2mrvWspCyJ7EGEJJh-QST5LZ0");
+
     const requestOptions:any = {
       method: "GET",
       headers: myHeaders,
+      "Access-Control-Allow-Origin": "*"
     };
-    
-    fetch("https://ispiroglucafe.com/menu-items", requestOptions)
+    fetch("https://ispiroglucafe.com/tables", requestOptions)
     .then(async(response) => {
+      console.log(response)
       if (response.status === 200) {
         return 
       }
@@ -48,7 +48,7 @@ function AdminPanel() {
     })
     .catch((error) => {
       alert('Yetkisiz erişim: Tablolar alınamadı.');
-      return window.location.href = '/login';    
+      //return window.location.href = '/login';    
     });    
   }, []);
 
@@ -71,6 +71,7 @@ function AdminPanel() {
           .then(async(response) => {
         if (response.status === 200) {
           const data = await response.json();
+          console.log(data)
           setProducts(data);
         } else {
           return alert('Yetkisiz erişim: Ürünler alınamadı.');
