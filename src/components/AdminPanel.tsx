@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Product, Order } from '../types';
 import { Plus, Edit, Trash, ReceiptText } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Table, Settings, List, LogOut } from 'lucide-react';
+import { Table, Settings, LogOut } from 'lucide-react';
+import axios from 'axios';
 
 function AdminPanel() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -22,14 +23,63 @@ function AdminPanel() {
   const [fetchedEndOfDayOrders, setFetchedEndOfDayOrders] = useState<Order[]>([]);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
+  /** Giriş kontrol için yaptığımız useeffect kısmımız */
   useEffect(() => {
+
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("Authorization", "bearer " + localStorage.getItem("token"));
+    
+    const requestOptions:any = {
+      method: "GET",
+      headers: myHeaders,
+    };
+    
+    fetch("https://ispiroglucafe.com/menu-items", requestOptions)
+    .then(async(response) => {
+      if (response.status === 200) {
+        return 
+      }
+      else {
+         alert('Yetkisiz erişim: Tablolar alınamadı.');
+         return window.location.href = '/login';
+      }
+
+    })
+    .catch((error) => {
+      alert('Yetkisiz erişim: Tablolar alınamadı.');
+      return window.location.href = '/login';    
+    });    
+  }, []);
+
+  //Ürün tablosundaki verileri getirdiğimiz useeffect kısmımız
+  useEffect(() => {
+
     const fetchProducts = async () => {
+     
       try {
-        const response = await fetch('https://ispiroglucafe.com/menu-items');
-        const data = await response.json();
-        setProducts(data);
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        myHeaders.append("Authorization", "bearer " + localStorage.getItem("token"));
+        
+        const requestOptions:any = {
+          method: "GET",
+          headers: myHeaders,
+        };
+        
+        fetch("https://ispiroglucafe.com/menu-items", requestOptions)
+          .then(async(response) => {
+        if (response.status === 200) {
+          const data = await response.json();
+          setProducts(data);
+        } else {
+          return alert('Yetkisiz erişim: Ürünler alınamadı.');
+        }
+      })
+        
       } catch (error) {
-        console.error('Ürünler alınırken hata oluştu:', error);
+        console.log(error)
+        return alert('Yetkisiz erişim: Ürünler alınamadı.');
       }
     };
 
@@ -55,37 +105,56 @@ function AdminPanel() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('price', formData.price.toString());
-      formDataToSend.append('category', formData.category);
-      formDataToSend.append('description', formData.description);
-      if (formData.image) {
-        formDataToSend.append('image', formData.image);
-      }
+      
 
       if (currentProduct) {
         // Ürün güncelleme API isteği burada yapılacak
-        const response = await fetch(`https://ispiroglucafe.com/menu-items`, {
-          method: 'PUT',
-          body: formDataToSend
-        });
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        myHeaders.append("Authorization", "bearer " + localStorage.getItem("token"));
+        
+        const requestOptions:any = {
+          method: "POST",
+          body: JSON.stringify({
+            name: formData.name,
+            price: formData.price,
+            category: formData.category,
+            description: formData.description,
+            image: formData.image ?? null
+          }),
+          headers: myHeaders,
+        };
+        const response = await fetch(`https://ispiroglucafe.com/menu-items`, requestOptions);
+        console.log(response.status)
         if (response.status === 401) {
-          console.error('Yetkisiz erişim: Ürün güncellenemedi.');
-          return;
+         alert('Yetkisiz erişim: Ürün güncellenemedi.');
+          return window.location.href = "/login";
         }
         const updatedProduct = await response.json();
         setProducts(products.map(p => p.id === currentProduct.id ? updatedProduct : p));
       } else {
-        // Yeni ürün ekleme API isteği burada yapılacak
-        const response = await fetch('https://ispiroglucafe.com/menu-items', {
-          method: 'POST',
-          body: formDataToSend
-        });
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        myHeaders.append("Authorization", "bearer " + localStorage.getItem("token"));
+        
+        const requestOptions:any = {
+          method: "POST",
+          body: JSON.stringify({
+            name: formData.name,
+            price: formData.price,
+            category: formData.category,
+            description: formData.description,
+            image: formData.image ?? null
+          }),
+          headers: myHeaders,
+        };
+        const response = await fetch(`https://ispiroglucafe.com/menu-items`, requestOptions);
+        console.log(response.status)
+
         if (response.status === 401) {
-          console.error('Yetkisiz erişim: Ürün eklenemedi.');
-          return;
-        }
+          alert('Yetkisiz erişim: Ürün güncellenemedi.');
+           return window.location.href = "/login";
+         }
         const newProduct = await response.json();
         setProducts([...products, newProduct]);
       }
