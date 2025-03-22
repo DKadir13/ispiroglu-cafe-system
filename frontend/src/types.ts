@@ -1,9 +1,15 @@
+export interface Table {
+  number: number;
+  status: 'empty' | 'occupied';
+}
+
 export interface Product {
-  id: number;
+  _id: string;
   name: string;
   price: number;
   category: string;
   description: string;
+  image?: string;
 }
 
 export interface OrderItem {

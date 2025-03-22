@@ -1,47 +1,93 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Lock, User } from 'lucide-react';
 
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('tables'); // Default: Masalara Erişim
+  const [role, setRole] = useState('waiter'); // Default: Masalara Erişim
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Kullanıcı zaten giriş yapmışsa ilgili sayfaya yönlendir
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const userData = localStorage.getItem('user');
+        const token = localStorage.getItem('token');
+        
+        if (userData && token) {
+          const user = JSON.parse(userData);
+          if (user.role === 'admin') {
+            navigate('/admin', { replace: true });
+          } else {
+            navigate('/tables', { replace: true });
+          }
+        }
+      } catch (error) {
+        console.error('Yetkilendirme hatası:', error);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
+    };
+
+    checkAuth();
+  }, [navigate]);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
   
     if (!username.trim() || !password.trim()) {
       setError('Kullanıcı adı ve şifre gereklidir');
+      setIsLoading(false);
       return;
     }
   
     try {
-      const response = await fetch("https://ispiroglucafe.com/auth/token", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ username: username.trim(), password: password.trim() }),
+      console.log('Login isteği gönderiliyor:', { username, password, role });
+      const response = await fetch('http://localhost:3000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          username: username.trim(), 
+          password: password.trim(),
+          role 
+        }),
       });
   
-      if (response.status === 200) {
-        const data = await response.json();
-        localStorage.setItem('token', data.access_token);
+      const data = await response.json();
+      console.log('Login yanıtı:', data);
   
-        // Seçilen role göre yönlendirme
-        navigate(role === 'admin' ? '/admin' : '/tables', { replace: true });
+      if (response.ok) {
+        // Token'ı localStorage'a kaydet
+        localStorage.setItem('token', data.token);
+        // Kullanıcı bilgilerini localStorage'a kaydet
+        localStorage.setItem('user', JSON.stringify(data.data));
+        
+        // Kullanıcı rolüne göre yönlendirme
+        if (data.data.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/tables');
+        }
       } else {
-        setError('Kullanıcı adı veya şifre hatalı');
+        setError(data.error || 'Giriş yapılırken bir hata oluştu');
       }
     } catch (error) {
-      console.error('Giriş sırasında hata oluştu:', error);
-      setError('Bir hata oluştu. Lütfen tekrar deneyin.');
+      console.error('Login hatası:', error);
+      setError('Sunucu ile iletişim kurulamadı');
+    } finally {
+      setIsLoading(false);
     }
   };
   
-
   return (
     <div className="flex justify-center items-center min-h-[80vh]">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
@@ -53,13 +99,13 @@ function Login() {
               : 'Masalara erişmek için bilgilerinizi girin'}
           </p>
         </div>
-
+  
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {error}
           </div>
         )}
-
+  
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
@@ -76,6 +122,8 @@ function Login() {
                 onChange={(e) => setUsername(e.target.value)}
                 className="pl-10 w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 placeholder="Kullanıcı adını girin"
+                disabled={isLoading}
+                autoComplete="username"
               />
             </div>
           </div>
@@ -95,10 +143,12 @@ function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="pl-10 w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 placeholder="Şifreyi girin"
+                disabled={isLoading}
+                autoComplete="current-password"
               />
             </div>
           </div>
-          
+  
           <div>
             <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
               Erişim Seviyesi
@@ -108,18 +158,20 @@ function Login() {
               value={role}
               onChange={(e) => setRole(e.target.value)}
               className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              disabled={isLoading}
             >
-              <option value="tables">Masalara Erişim</option>
+              <option value="waiter">Masalara Erişim</option>
               <option value="admin">Yönetim Erişimi</option>
             </select>
           </div>
-          
+  
           <div>
             <button
               type="submit"
-              className="w-full bg-amber-700 text-white py-2 px-4 rounded-md hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+              className="w-full bg-amber-700 text-white py-2 px-4 rounded-md hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isLoading}
             >
-              Giriş Yap
+              {isLoading ? 'Giriş Yapılıyor...' : 'Giriş Yap'}
             </button>
           </div>
         </form>
@@ -127,5 +179,5 @@ function Login() {
     </div>
   );
 }
-
+  
 export default Login;
