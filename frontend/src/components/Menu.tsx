@@ -10,7 +10,7 @@ function Menu() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/products');
+        const response = await fetch('http://api.ispiroglucafe.com/api/products');
         if (!response.ok) {
           throw new Error('Ürünler alınamadı');
         }
@@ -50,10 +50,10 @@ function Menu() {
     }
     // Eğer /uploads ile başlıyorsa, doğrudan backend URL'sine ekle
     if (imagePath.startsWith('/uploads')) {
-      return `http://localhost:3000${imagePath}`;
+      return `http://api.ispiroglucafe.com${imagePath}`;
     }
     // Diğer durumlar için /uploads/ ekleyerek dene
-    return `http://localhost:3000/uploads/${imagePath}`;
+    return `http://api.ispiroglucafe.com/uploads/${imagePath}`;
   };
 
   if (loading) return <div className="text-center p-8">Yükleniyor...</div>;

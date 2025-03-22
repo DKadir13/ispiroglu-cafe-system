@@ -32,7 +32,7 @@ const DailyReport: React.FC = () => {
         throw new Error('Oturum bulunamadı');
       }
 
-      const response = await fetch('http://localhost:3000/api/reports/daily', {
+      const response = await fetch('http://api.ispiroglucafe.com/api/reports/daily', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -69,7 +69,7 @@ const DailyReport: React.FC = () => {
 
       const totalAmount = orders.reduce((total, order) => total + (order.total || 0), 0);
 
-      const response = await fetch('http://localhost:3000/api/reports/save-daily', {
+      const response = await fetch('http://api.ispiroglucafe.com/api/reports/save-daily', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -130,10 +130,10 @@ const DailyReport: React.FC = () => {
     }
     // Eğer /uploads ile başlıyorsa, doğrudan backend URL'sine ekle
     if (imagePath.startsWith('/uploads')) {
-      return `http://localhost:3000${imagePath}`;
+      return `http://api.ispiroglucafe.com${imagePath}`;
     }
     // Diğer durumlar için /uploads/ ekleyerek dene
-    return `http://localhost:3000/uploads/${imagePath}`;
+    return `http://api.ispiroglucafe.com/uploads/${imagePath}`;
   };
 
   if (loading) {

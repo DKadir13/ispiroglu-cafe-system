@@ -45,7 +45,7 @@ function AdminPanel() {
           return;
         }
 
-        const response = await fetch('http://localhost:3000/api/admin/check-auth', {
+        const response = await fetch('http://api.ispiroglucafe.com/api/admin/check-auth', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -92,10 +92,10 @@ function AdminPanel() {
       };
 
       const [productsRes, tablesRes, usersRes, ordersRes] = await Promise.all([
-        fetch('http://localhost:3000/api/admin/products', { headers }),
-        fetch('http://localhost:3000/api/admin/tables', { headers }),
-        fetch('http://localhost:3000/api/admin/users', { headers }),
-        fetch('http://localhost:3000/api/admin/orders', { headers })
+        fetch('http://api.ispiroglucafe.com/api/admin/products', { headers }),
+        fetch('http://api.ispiroglucafe.com/api/admin/tables', { headers }),
+        fetch('http://api.ispiroglucafe.com/api/admin/users', { headers }),
+        fetch('http://api.ispiroglucafe.com/api/admin/orders', { headers })
       ]);
 
       if (!productsRes.ok || !tablesRes.ok || !usersRes.ok || !ordersRes.ok) {
@@ -159,8 +159,8 @@ function AdminPanel() {
       };
 
       const url = currentProduct
-        ? `http://localhost:3000/api/admin/products/${currentProduct._id}`
-        : 'http://localhost:3000/api/admin/products';
+        ? `http://api.ispiroglucafe.com/api/admin/products/${currentProduct._id}`
+        : 'http://api.ispiroglucafe.com/api/admin/products';
       
       const method = currentProduct ? 'PUT' : 'POST';
 
@@ -218,10 +218,10 @@ function AdminPanel() {
     }
     // Eğer /uploads ile başlıyorsa, doğrudan backend URL'sine ekle
     if (imagePath.startsWith('/uploads')) {
-      return `http://localhost:3000${imagePath}`;
+      return `http://api.ispiroglucafe.com${imagePath}`;
     }
     // Diğer durumlar için /uploads/ ekleyerek dene
-    return `http://localhost:3000/uploads/${imagePath}`;
+    return `http://api.ispiroglucafe.com/uploads/${imagePath}`;
   };
 
   const handleEdit = (product: Product) => {
@@ -239,7 +239,7 @@ function AdminPanel() {
   const handleDelete = async (id: string) => {
     if (window.confirm('Bu ürünü silmek istediğinizden emin misiniz?')) {
       try {
-        const response = await fetch(`http://localhost:3000/api/admin/products/${id}`, {
+        const response = await fetch(`http://api.ispiroglucafe.com/api/admin/products/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -273,7 +273,7 @@ function AdminPanel() {
 
   const handleEndDay = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/admin/end-of-day', {
+      const response = await fetch('http://api.ispiroglucafe.com/api/admin/end-of-day', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -306,7 +306,7 @@ function AdminPanel() {
 
   const handleAddTables = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/admin/tables', {
+      const response = await fetch('http://api.ispiroglucafe.com/api/admin/tables', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

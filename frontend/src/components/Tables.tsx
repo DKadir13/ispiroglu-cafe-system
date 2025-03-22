@@ -42,10 +42,10 @@ const Tables: React.FC = () => {
         }
 
         const [productsRes, tablesRes] = await Promise.all([
-          fetch('http://localhost:3000/api/products', {
+          fetch('http://api.ispiroglucafe.com/api/products', {
             headers: { 'Authorization': `Bearer ${token}` }
           }),
-          fetch('http://localhost:3000/api/tables', {
+          fetch('http://api.ispiroglucafe.com/api/tables', {
             headers: { 'Authorization': `Bearer ${token}` }
           })
         ]);
@@ -147,7 +147,7 @@ const Tables: React.FC = () => {
 
       console.log('Gönderilen sipariş:', orderData); // Debug için
 
-      const response = await fetch('http://localhost:3000/api/orders', {
+      const response = await fetch('http://api.ispiroglucafe.com/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -228,10 +228,10 @@ const Tables: React.FC = () => {
     }
     // Eğer /uploads ile başlıyorsa, doğrudan backend URL'sine ekle
     if (imagePath.startsWith('/uploads')) {
-      return `http://localhost:3000${imagePath}`;
+      return `http://api.ispiroglucafe.com${imagePath}`;
     }
     // Diğer durumlar için /uploads/ ekleyerek dene
-    return `http://localhost:3000/uploads/${imagePath}`;
+    return `http://api.ispiroglucafe.com/uploads/${imagePath}`;
   };
 
   if (loading) {
