@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { Product } from '../types';
-import { Image, ShoppingCart } from 'lucide-react';
 
 function Menu() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -117,15 +116,7 @@ function Menu() {
               <p className="text-gray-600 mb-2">{product.description}</p>
               <div className="flex justify-between items-center">
                 <span className="text-lg font-bold">₺{product.price.toFixed(2)}</span>
-                <button
-                  onClick={() => {
-                    // Sepete ekleme işlemi burada yapılacak
-                    alert('Sepete eklendi: ' + product.name);
-                  }}
-                  className="bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700"
-                >
-                  Sepete Ekle
-                </button>
+               
               </div>
             </div>
           ))}
