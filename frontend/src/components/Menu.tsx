@@ -10,7 +10,7 @@ function Menu() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://api.ispiroglucafe.com/api/products');
+        const response = await fetch('https://api.ispiroglucafe.com/api/products');
         if (!response.ok) {
           throw new Error('Ürünler alınamadı');
         }
@@ -42,18 +42,18 @@ function Menu() {
   // Resim URL'sini oluşturan yardımcı fonksiyon
   const getImageUrl = (imagePath: string | null | undefined): string => {
     if (!imagePath) {
-      return 'https://via.placeholder.com/150?text=Resim+Yok';
+      return 'httpss://via.placeholder.com/150?text=Resim+Yok';
     }
     // Eğer tam URL ise olduğu gibi kullan
-    if (imagePath.startsWith('http')) {
+    if (imagePath.startsWith('https')) {
       return imagePath;
     }
     // Eğer /uploads ile başlıyorsa, doğrudan backend URL'sine ekle
     if (imagePath.startsWith('/uploads')) {
-      return `http://api.ispiroglucafe.com${imagePath}`;
+      return `https://api.ispiroglucafe.com${imagePath}`;
     }
     // Diğer durumlar için /uploads/ ekleyerek dene
-    return `http://api.ispiroglucafe.com/uploads/${imagePath}`;
+    return `https://api.ispiroglucafe.com/uploads/${imagePath}`;
   };
 
   if (loading) return <div className="text-center p-8">Yükleniyor...</div>;
@@ -108,7 +108,7 @@ function Menu() {
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;
-                    target.src = 'https://via.placeholder.com/150?text=Resim+Yok';
+                    target.src = 'httpss://via.placeholder.com/150?text=Resim+Yok';
                   }}
                 />
               </div>

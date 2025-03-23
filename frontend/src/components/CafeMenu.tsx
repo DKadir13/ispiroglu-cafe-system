@@ -9,7 +9,7 @@ function CafeMenu() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('https://ispiroglucafe.com/menu-items');
+        const response = await fetch('httpss://ispiroglucafe.com/menu-items');
         const data = await response.json();
         setProducts(data);
       } catch (error) {

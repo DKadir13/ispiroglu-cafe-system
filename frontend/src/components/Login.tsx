@@ -50,7 +50,7 @@ function Login() {
   
     try {
       console.log('Login isteği gönderiliyor:', { username, password, role });
-      const response = await fetch('http://api.ispiroglucafe.com/api/auth/login', {
+      const response = await fetch('https://api.ispiroglucafe.com/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -42,10 +42,10 @@ const Tables: React.FC = () => {
         }
 
         const [productsRes, tablesRes] = await Promise.all([
-          fetch('http://api.ispiroglucafe.com/api/products', {
+          fetch('https://api.ispiroglucafe.com/api/products', {
             headers: { 'Authorization': `Bearer ${token}` }
           }),
-          fetch('http://api.ispiroglucafe.com/api/tables', {
+          fetch('https://api.ispiroglucafe.com/api/tables', {
             headers: { 'Authorization': `Bearer ${token}` }
           })
         ]);
@@ -147,7 +147,7 @@ const Tables: React.FC = () => {
 
       console.log('Gönderilen sipariş:', orderData); // Debug için
 
-      const response = await fetch('http://api.ispiroglucafe.com/api/orders', {
+      const response = await fetch('https://api.ispiroglucafe.com/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -220,18 +220,18 @@ const Tables: React.FC = () => {
   // Resim URL'sini oluşturan yardımcı fonksiyon
   const getImageUrl = (imagePath: string | null | undefined): string => {
     if (!imagePath) {
-      return 'https://via.placeholder.com/150?text=Resim+Yok';
+      return 'httpss://via.placeholder.com/150?text=Resim+Yok';
     }
     // Eğer tam URL ise olduğu gibi kullan
-    if (imagePath.startsWith('http')) {
+    if (imagePath.startsWith('https')) {
       return imagePath;
     }
     // Eğer /uploads ile başlıyorsa, doğrudan backend URL'sine ekle
     if (imagePath.startsWith('/uploads')) {
-      return `http://api.ispiroglucafe.com${imagePath}`;
+      return `https://api.ispiroglucafe.com${imagePath}`;
     }
     // Diğer durumlar için /uploads/ ekleyerek dene
-    return `http://api.ispiroglucafe.com/uploads/${imagePath}`;
+    return `https://api.ispiroglucafe.com/uploads/${imagePath}`;
   };
 
   if (loading) {
@@ -335,7 +335,7 @@ const Tables: React.FC = () => {
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
                               target.onerror = null;
-                              target.src = 'https://via.placeholder.com/150?text=Resim+Yok';
+                              target.src = 'httpssss://via.placeholder.com/150?text=Resim+Yok';
                             }}
                           />
                         </div>

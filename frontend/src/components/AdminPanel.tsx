@@ -92,10 +92,10 @@ function AdminPanel() {
       };
 
       const [productsRes, tablesRes, usersRes, ordersRes] = await Promise.all([
-        fetch('http://api.ispiroglucafe.com/api/admin/products', { headers }),
-        fetch('http://api.ispiroglucafe.com/api/admin/tables', { headers }),
-        fetch('http://api.ispiroglucafe.com/api/admin/users', { headers }),
-        fetch('http://api.ispiroglucafe.com/api/admin/orders', { headers })
+        fetch('https://api.ispiroglucafe.com/api/admin/products', { headers }),
+        fetch('https://api.ispiroglucafe.com/api/admin/tables', { headers }),
+        fetch('https://api.ispiroglucafe.com/api/admin/users', { headers }),
+        fetch('https://api.ispiroglucafe.com/api/admin/orders', { headers })
       ]);
 
       if (!productsRes.ok || !tablesRes.ok || !usersRes.ok || !ordersRes.ok) {
@@ -159,8 +159,8 @@ function AdminPanel() {
       };
 
       const url = currentProduct
-        ? `http://api.ispiroglucafe.com/api/admin/products/${currentProduct._id}`
-        : 'http://api.ispiroglucafe.com/api/admin/products';
+        ? `https://api.ispiroglucafe.com/api/admin/products/${currentProduct._id}`
+        : 'https://api.ispiroglucafe.com/api/admin/products';
       
       const method = currentProduct ? 'PUT' : 'POST';
 
@@ -210,18 +210,18 @@ function AdminPanel() {
   // Resim URL'sini oluşturan yardımcı fonksiyon
   const getImageUrl = (imagePath: string | null | undefined): string => {
     if (!imagePath) {
-      return 'https://via.placeholder.com/150?text=Resim+Yok';
+      return 'httpss://via.placeholder.com/150?text=Resim+Yok';
     }
     // Eğer tam URL ise olduğu gibi kullan
-    if (imagePath.startsWith('http')) {
+    if (imagePath.startsWith('https')) {
       return imagePath;
     }
     // Eğer /uploads ile başlıyorsa, doğrudan backend URL'sine ekle
     if (imagePath.startsWith('/uploads')) {
-      return `http://api.ispiroglucafe.com${imagePath}`;
+      return `https://api.ispiroglucafe.com${imagePath}`;
     }
     // Diğer durumlar için /uploads/ ekleyerek dene
-    return `http://api.ispiroglucafe.com/uploads/${imagePath}`;
+    return `https://api.ispiroglucafe.com/uploads/${imagePath}`;
   };
 
   const handleEdit = (product: Product) => {
@@ -239,7 +239,7 @@ function AdminPanel() {
   const handleDelete = async (id: string) => {
     if (window.confirm('Bu ürünü silmek istediğinizden emin misiniz?')) {
       try {
-        const response = await fetch(`http://api.ispiroglucafe.com/api/admin/products/${id}`, {
+        const response = await fetch(`https://api.ispiroglucafe.com/api/admin/products/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -273,7 +273,7 @@ function AdminPanel() {
 
   const handleEndDay = async () => {
     try {
-      const response = await fetch('http://api.ispiroglucafe.com/api/admin/end-of-day', {
+      const response = await fetch('httpss://api.ispiroglucafe.com/api/admin/end-of-day', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -306,7 +306,7 @@ function AdminPanel() {
 
   const handleAddTables = async () => {
     try {
-      const response = await fetch('http://api.ispiroglucafe.com/api/admin/tables', {
+      const response = await fetch('https://api.ispiroglucafe.com/api/admin/tables', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -557,7 +557,7 @@ function AdminPanel() {
                       name="imageUrl"
                       value={formData.imageUrl}
                       onChange={handleInputChange}
-                      placeholder="https://example.com/image.jpg"
+                      placeholder="httpss://example.com/image.jpg"
                       className="w-full border rounded px-3 py-2"
                     />
                   </div>
@@ -612,7 +612,7 @@ function AdminPanel() {
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 target.onerror = null;
-                                target.src = 'https://via.placeholder.com/150?text=Resim+Yok';
+                                target.src = 'httpss://via.placeholder.com/150?text=Resim+Yok';
                               }}
                             />
                           ) : (
