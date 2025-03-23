@@ -45,7 +45,7 @@ function AdminPanel() {
           return;
         }
 
-        const response = await fetch('http://api.ispiroglucafe.com/api/admin/check-auth', {
+        const response = await fetch('https://api.ispiroglucafe.com/api/admin/check-auth', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
