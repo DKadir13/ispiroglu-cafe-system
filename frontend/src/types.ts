@@ -10,6 +10,7 @@ export interface Product {
   category: string;
   description: string;
   image?: string;
+  tableId: string;
 }
 
 export interface OrderItem {

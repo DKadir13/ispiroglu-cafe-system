@@ -44,7 +44,7 @@ function AdminPanel() {
           navigate('/tables');
           return;
         }
-
+        console.log(token)
         const response = await fetch('https://api.ispiroglucafe.com/api/admin/check-auth', {
           method: 'GET',
           headers: {

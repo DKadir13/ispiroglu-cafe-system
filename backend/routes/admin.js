@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 const Table = require('../models/Table');
 const Product = require('../models/Product');
@@ -11,7 +10,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Yetkilendirme kontrolü endpoint'i
-router.get('/check-auth', [auth, admin], async (req, res) => {
+router.get('/check-auth', [auth,admin], async (req, res) => {
   try {
     res.json({ message: 'Yetkilendirme başarılı' });
   } catch (error) {

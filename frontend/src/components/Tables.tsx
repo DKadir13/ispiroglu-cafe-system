@@ -89,38 +89,44 @@ const Tables: React.FC = () => {
 
   const addToCart = (product: Product) => {
     setCart(prevCart => {
-      const existingItem = prevCart.find(item => item.product._id === product._id);
+      const existingItem = prevCart.find(item => item.product._id == product._id && item?.tableId == selectedTable?.number);
       
       if (existingItem) {
         return prevCart.map(item => 
-          item.product._id === product._id 
-            ? { ...item, quantity: item.quantity + 1 } 
+          item.product._id === product._id  &&
+          item?.tableId == selectedTable?.number
+            ? { ...item, quantity: item.quantity + 1, tableId: selectedTable?.number } 
             : item
         );
       } else {
-        return [...prevCart, { product, quantity: 1 }];
+        return [...prevCart, { product, quantity: 1, tableId: selectedTable?.number }];
       }
     });
   };
 
   const removeFromCart = (productId: string) => {
     setCart(prevCart => {
-      const existingItem = prevCart.find(item => item.product._id === productId);
+      const existingItem = prevCart.find(item => item.product._id === productId && 
+        item?.tableId == selectedTable?.number
+      );
       
       if (existingItem && existingItem.quantity > 1) {
         return prevCart.map(item => 
-          item.product._id === productId 
-            ? { ...item, quantity: item.quantity - 1 } 
+          item.product._id === productId &&
+          item?.tableId == selectedTable?.number
+            ? { ...item, quantity: item.quantity - 1, tableId: selectedTable?.number } 
             : item
         );
       } else {
-        return prevCart.filter(item => item.product._id !== productId);
+        return prevCart.filter(item => item.product._id !== productId && 
+          item?.tableId != selectedTable?.number
+        );
       }
     });
   };
 
   const calculateTotal = () => {
-    return cart.reduce((total, item) => total + (item.product.price * item.quantity), 0);
+    return cart.filter((x:any) => x.tableId == selectedTable?.number).reduce((total, item) => total + (item.product.price * item.quantity), 0);
   };
 
   const handleCompleteOrder = async () => {
@@ -140,7 +146,8 @@ const Tables: React.FC = () => {
         tableNumber: selectedTable.number,
         items: cart.map(item => ({
           product: item.product._id,
-          quantity: item.quantity
+          quantity: item.quantity,
+          tableId: selectedTable.number
         })),
         total: calculateTotal()
       };
@@ -174,8 +181,15 @@ const Tables: React.FC = () => {
       }, 5000);
 
       // Başarılı siparişten sonra sepeti temizle
-      setCart([]);
-      localStorage.removeItem('cart');
+      cart.filter((x:any) => x.tableId == selectedTable?.number).forEach(item => {
+        const index = cart.findIndex((x:any) => x.product._id === item.product._id && x.tableId == selectedTable?.number);
+        if (index !== -1) {
+          cart.splice(index, 1);
+        }
+      }
+      );
+      setCart(cart);
+      localStorage.setItem('cart', JSON.stringify(cart)); 
 
     } catch (error) {
       console.error('Sipariş tamamlama hatası:', error);
@@ -187,16 +201,30 @@ const Tables: React.FC = () => {
     if (receiptUrl) {
       window.open(receiptUrl, '_blank');
       // Fiş yazdırıldıktan sonra sepeti temizle
-      setCart([]);
-      localStorage.removeItem('cart');
+      cart.filter((x:any) => x.tableId == selectedTable?.number).forEach(item => {
+        const index = cart.findIndex((x:any) => x.product._id === item.product._id && x.tableId == selectedTable?.number);
+        if (index !== -1) {
+          cart.splice(index, 1);
+        }
+      }
+      );
+      setCart(cart);
+      localStorage.setItem('cart', JSON.stringify(cart));
       setShowReceiptOptions(false);
     }
   };
 
   const handleAddToDailyReport = () => {
     // Gün sonu raporuna ekleme işlemi zaten backend'de otomatik olarak yapılıyor
-    setCart([]);
-    localStorage.removeItem('cart');
+    cart.filter((x:any) => x.tableId == selectedTable?.number).forEach(item => {
+      const index = cart.findIndex((x:any) => x.product._id === item.product._id && x.tableId == selectedTable?.number);
+      if (index !== -1) {
+        cart.splice(index, 1);
+      }
+    }
+    );
+    setCart(cart);
+    localStorage.setItem('cart', JSON.stringify(cart));
     setShowReceiptOptions(false);
   };
 
@@ -362,12 +390,14 @@ const Tables: React.FC = () => {
                   <h3 className="text-xl font-bold">Sipariş</h3>
                 </div>
                 
-                {cart.length === 0 ? (
+                {cart.filter(
+                  (x:any) => x?.tableId == selectedTable?.number
+                ).length === 0 ? (
                   <p className="text-gray-500 text-center py-4">Sepetiniz boş</p>
                 ) : (
                   <>
                     <div className="space-y-4">
-                      {cart.map(item => (
+                      {cart.filter((x:any) => x?.tableId == selectedTable?.number).map(item => (
                         <div key={item.product._id} className="flex items-center justify-between">
                           <div>
                             <h4 className="font-medium">{item.product.name}</h4>
